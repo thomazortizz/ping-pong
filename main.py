@@ -34,9 +34,6 @@ beer_image = pygame.transform.scale(beer_image, (100, 100))
 background_image = pygame.image.load("img/background.png")
 background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
 
-beerpong_image = pygame.image.load("img/beerpong.png")
-beerpong_image = pygame.transform.scale(beerpong_image, (200, 100))
-
 def input_names():
     global player_1_name, player_2_name, game_started
 
@@ -54,9 +51,6 @@ def input_names():
 
     while not game_started:
         wn.blit(background_image, (0, 0)) 
-
-        # Render beerpong image above the text
-        wn.blit(beerpong_image, (WIDTH // 2 - beerpong_image.get_width() // 2, HEIGHT // 2 - 250))
 
         # Render input boxes
         pygame.draw.rect(wn, LIGHT_ORANGE if input_active_1 else DARK_GRAY, input_box_1, 0, border_radius=10)
@@ -196,34 +190,40 @@ def main_game():
             ball_vel_y = -ball_vel_y
 
         # Ball collision with paddles
-        if (ball_x - radius <= paddle_width and left_paddle_y < ball_y < left_paddle_y + paddle_height) or \
-           (ball_x + radius >= WIDTH - paddle_width and right_paddle_y < ball_y < right_paddle_y + paddle_height):
+        if (left_paddle_y < ball_y < left_paddle_y + paddle_height and ball_x - radius <= 70) or \
+           (right_paddle_y < ball_y < right_paddle_y + paddle_height and ball_x + radius >= WIDTH - 70):
             ball_vel_x = -ball_vel_x
 
-        # Ball out of bounds
+        # Scoring
         if ball_x - radius <= 0:
             player_2_score += 1
             ball_x, ball_y = WIDTH // 2, HEIGHT // 2
-            ball_vel_x = -ball_vel_x
-        elif ball_x + radius >= WIDTH:
+        if ball_x + radius >= WIDTH:
             player_1_score += 1
             ball_x, ball_y = WIDTH // 2, HEIGHT // 2
-            ball_vel_x = -ball_vel_x
 
-        # Draw paddles, ball, and score
-        pygame.draw.rect(wn, ORANGE, (0, left_paddle_y, paddle_width, paddle_height))
-        pygame.draw.rect(wn, ORANGE, (WIDTH - paddle_width, right_paddle_y, paddle_width, paddle_height))
+        # Draw beer image for goals
+        wn.blit(beer_image, (25, left_paddle_y))  # Left goal
+        wn.blit(beer_image, (WIDTH - 125, right_paddle_y))  # Right goal
         pygame.draw.circle(wn, WHITE, (ball_x, ball_y), radius)
-        pygame.draw.rect(wn, WHITE, (WIDTH // 2 - 5, 0, 10, HEIGHT))
+        
+        # Display scores
+        score_1 = font.render(str(player_1_score), True, WHITE)
+        score_2 = font.render(str(player_2_score), True, WHITE)
+        wn.blit(score_1, (WIDTH // 4, 20))
+        wn.blit(score_2, (3 * WIDTH // 4 - score_2.get_width(), 20))
 
-        player_1_score_text = font.render(str(player_1_score), True, WHITE)
-        player_2_score_text = font.render(str(player_2_score), True, WHITE)
-        wn.blit(player_1_score_text, (WIDTH // 4 - player_1_score_text.get_width() // 2, 50))
-        wn.blit(player_2_score_text, (WIDTH * 3 // 4 - player_2_score_text.get_width() // 2, 50))
+        # Display player names
+        name_1 = small_font.render(player_1_name, True, WHITE)
+        name_2 = small_font.render(player_2_name, True, WHITE)
+        wn.blit(name_1, (50, 20))
+        wn.blit(name_2, (WIDTH - name_2.get_width() - 50, 20))
 
         pygame.display.flip()
         clock.tick(60)
 
+
+# Main program flow
 input_names()
 main_game()
 pygame.quit()
