@@ -1,4 +1,5 @@
 import pygame
+import time
 
 pygame.init()
 
@@ -9,13 +10,13 @@ pygame.display.set_caption("Ping Pong")
 run = True
 
 # Colors
-BLUE = (0, 139, 139)
+ORANGE = (255, 153, 0)
 WHITE = (255, 255, 255)
-ORANGE = (251, 140, 29)
 GREEN = (0, 255, 0)
-LIGHT_BLUE = (173, 216, 230)
+LIGHT_ORANGE = (173, 216, 230)
 GRAY = (169, 169, 169)
 DARK_GRAY = (50, 50, 50)
+BUTTON_COLOR = (3, 27, 52)  # #031B34
 
 # Fonts
 font = pygame.font.SysFont('Arial', 48)
@@ -26,6 +27,13 @@ player_1_name = "Jogador 1"
 player_2_name = "Jogador 2"
 game_started = False
 
+# Load images
+beer_image = pygame.image.load("img/beer.webp")
+beer_image = pygame.transform.scale(beer_image, (100, 100))
+
+background_image = pygame.image.load("img/background.png")
+background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
+
 def input_names():
     global player_1_name, player_2_name, game_started
 
@@ -33,18 +41,21 @@ def input_names():
     player_1_name = ""
     player_2_name = ""
 
-    input_box_1 = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 80, 300, 50)
-    input_box_2 = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2, 300, 50)
-    start_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 80, 200, 50)
+    input_box_1 = pygame.Rect(WIDTH // 2 - 300, HEIGHT // 2 - 25, 200, 50)
+    input_box_2 = pygame.Rect(WIDTH // 2 + 100, HEIGHT // 2 - 25, 200, 50)
+    start_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 100, 200, 50)
 
     clock = pygame.time.Clock()
+    cursor_visible = True
+    last_blink = time.time()
+
     while not game_started:
-        wn.fill(BLUE)
+        wn.blit(background_image, (0, 0)) 
 
         # Render input boxes
-        pygame.draw.rect(wn, LIGHT_BLUE if input_active_1 else DARK_GRAY, input_box_1, 0, border_radius=10)
-        pygame.draw.rect(wn, LIGHT_BLUE if input_active_2 else DARK_GRAY, input_box_2, 0, border_radius=10)
-        pygame.draw.rect(wn, GREEN, start_button, 0, border_radius=10)
+        pygame.draw.rect(wn, LIGHT_ORANGE if input_active_1 else DARK_GRAY, input_box_1, 0, border_radius=10)
+        pygame.draw.rect(wn, LIGHT_ORANGE if input_active_2 else DARK_GRAY, input_box_2, 0, border_radius=10)
+        pygame.draw.rect(wn, BUTTON_COLOR, start_button, 0, border_radius=10)
 
         # Render outlines for input boxes
         pygame.draw.rect(wn, WHITE, input_box_1, 2, border_radius=10)
@@ -60,10 +71,29 @@ def input_names():
         wn.blit(txt_surface_1, (input_box_1.x + 10, input_box_1.y + 10))
         wn.blit(txt_surface_2, (input_box_2.x + 10, input_box_2.y + 10))
 
+        # Draw blinking cursor for active inputs
+        if input_active_1 and cursor_visible:
+            cursor_x = input_box_1.x + 10 + txt_surface_1.get_width() + 5
+            cursor_y = input_box_1.y + 10
+            pygame.draw.rect(wn, WHITE, (cursor_x, cursor_y, 2, txt_surface_1.get_height()))
+        if input_active_2 and cursor_visible:
+            cursor_x = input_box_2.x + 10 + txt_surface_2.get_width() + 5
+            cursor_y = input_box_2.y + 10
+            pygame.draw.rect(wn, WHITE, (cursor_x, cursor_y, 2, txt_surface_2.get_height()))
+
+        # Draw "X" between inputs
+        x_text = font.render("X", True, WHITE)
+        wn.blit(x_text, (WIDTH // 2 - x_text.get_width() // 2, HEIGHT // 2 - x_text.get_height() // 2))
+
         # Start button text
-        start_text = small_font.render("Iniciar", True, DARK_GRAY)
+        start_text = small_font.render("Iniciar", True, WHITE)
         wn.blit(start_text, (start_button.x + (start_button.width - start_text.get_width()) // 2,
                              start_button.y + (start_button.height - start_text.get_height()) // 2))
+
+        # Blink logic for the cursor
+        if time.time() - last_blink > 0.5:
+            cursor_visible = not cursor_visible
+            last_blink = time.time()
 
         # Event handling
         for event in pygame.event.get():
@@ -97,6 +127,7 @@ def input_names():
         pygame.display.flip()
         clock.tick(30)
 
+
 def main_game():
     global player_1_name, player_2_name, run
 
@@ -118,7 +149,7 @@ def main_game():
     clock = pygame.time.Clock()
 
     while run:
-        wn.fill(BLUE)
+        wn.blit(background_image, (0, 0)) 
 
         # Event handling
         for event in pygame.event.get():
@@ -132,12 +163,12 @@ def main_game():
             winner = player_2_name
 
         if winner:
-            # Display the winner
-            winner_text = font.render(f"{winner} venceu!", True, GREEN)
-            wn.blit(winner_text, (WIDTH // 2 - winner_text.get_width() // 2, HEIGHT // 2 - winner_text.get_height() // 2))
+            loser = player_1_name if winner == player_2_name else player_2_name
+            loser_text = font.render(f"{loser} bebe!", True, GREEN)
+            wn.blit(loser_text, (WIDTH // 2 - loser_text.get_width() // 2, HEIGHT // 2 - loser_text.get_height() // 2))
             pygame.display.flip()
-            pygame.time.wait(3000)  # Pause for 3 seconds to show the winner
-            break  # Exit the game loop
+            pygame.time.wait(3000)
+            break
 
         # Paddle movement
         keys = pygame.key.get_pressed()
@@ -171,24 +202,28 @@ def main_game():
             player_1_score += 1
             ball_x, ball_y = WIDTH // 2, HEIGHT // 2
 
-        # Draw paddles, ball, and scores
-        pygame.draw.rect(wn, ORANGE, (50, left_paddle_y, paddle_width, paddle_height))
-        pygame.draw.rect(wn, ORANGE, (WIDTH - 70, right_paddle_y, paddle_width, paddle_height))
-        pygame.draw.circle(wn, WHITE, (int(ball_x), int(ball_y)), radius)
+        # Draw beer image for goals
+        wn.blit(beer_image, (25, left_paddle_y))  # Left goal
+        wn.blit(beer_image, (WIDTH - 125, right_paddle_y))  # Right goal
+        pygame.draw.circle(wn, WHITE, (ball_x, ball_y), radius)
+        
+        # Display scores
+        score_1 = font.render(str(player_1_score), True, WHITE)
+        score_2 = font.render(str(player_2_score), True, WHITE)
+        wn.blit(score_1, (WIDTH // 4, 20))
+        wn.blit(score_2, (3 * WIDTH // 4 - score_2.get_width(), 20))
 
-        score_text = font.render(f"{player_1_score} - {player_2_score}", True, WHITE)
-        wn.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, 20))
-
-        # Player names
+        # Display player names
         name_1 = small_font.render(player_1_name, True, WHITE)
         name_2 = small_font.render(player_2_name, True, WHITE)
         wn.blit(name_1, (50, 20))
-        wn.blit(name_2, (WIDTH - 50 - name_2.get_width(), 20))
+        wn.blit(name_2, (WIDTH - name_2.get_width() - 50, 20))
 
         pygame.display.flip()
         clock.tick(60)
 
-# Run the game
+
+# Main program flow
 input_names()
 main_game()
 pygame.quit()
