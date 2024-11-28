@@ -1,4 +1,4 @@
-# Ping Pong 🏓
+# Beer Pong 🏓
 
 Este repositório contém um jogo de Ping Pong desenvolvido em Python usando a biblioteca pygame. Este projeto é um exemplo divertido de como criar um jogo 2D interativo com detecção de colisões, movimentação de objetos e exibição de pontuação.
 
