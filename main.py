@@ -13,7 +13,9 @@ BLUE = (0, 139, 139)
 WHITE = (255, 255, 255)
 ORANGE = (251, 140, 29)
 GREEN = (0, 255, 0)
-RED = (255, 0, 0)
+LIGHT_BLUE = (173, 216, 230)
+GRAY = (169, 169, 169)
+DARK_GRAY = (50, 50, 50)
 
 # Fonts
 font = pygame.font.SysFont('Arial', 48)
@@ -40,22 +42,26 @@ def input_names():
         wn.fill(BLUE)
 
         # Render input boxes
-        pygame.draw.rect(wn, WHITE, input_box_1, 2)
-        pygame.draw.rect(wn, WHITE, input_box_2, 2)
-        pygame.draw.rect(wn, GREEN, start_button)
+        pygame.draw.rect(wn, LIGHT_BLUE if input_active_1 else DARK_GRAY, input_box_1, 0, border_radius=10)
+        pygame.draw.rect(wn, LIGHT_BLUE if input_active_2 else DARK_GRAY, input_box_2, 0, border_radius=10)
+        pygame.draw.rect(wn, GREEN, start_button, 0, border_radius=10)
+
+        # Render outlines for input boxes
+        pygame.draw.rect(wn, WHITE, input_box_1, 2, border_radius=10)
+        pygame.draw.rect(wn, WHITE, input_box_2, 2, border_radius=10)
 
         # Text instructions
         instruction_text = small_font.render("Digite os nomes dos jogadores e clique em iniciar", True, WHITE)
         wn.blit(instruction_text, (WIDTH // 2 - instruction_text.get_width() // 2, HEIGHT // 2 - 150))
 
         # Input texts
-        txt_surface_1 = small_font.render(player_1_name, True, WHITE)
-        txt_surface_2 = small_font.render(player_2_name, True, WHITE)
+        txt_surface_1 = small_font.render(player_1_name or "Jogador 1", True, GRAY if not player_1_name else WHITE)
+        txt_surface_2 = small_font.render(player_2_name or "Jogador 2", True, GRAY if not player_2_name else WHITE)
         wn.blit(txt_surface_1, (input_box_1.x + 10, input_box_1.y + 10))
         wn.blit(txt_surface_2, (input_box_2.x + 10, input_box_2.y + 10))
 
         # Start button text
-        start_text = small_font.render("Iniciar", True, BLUE)
+        start_text = small_font.render("Iniciar", True, DARK_GRAY)
         wn.blit(start_text, (start_button.x + (start_button.width - start_text.get_width()) // 2,
                              start_button.y + (start_button.height - start_text.get_height()) // 2))
 
@@ -73,19 +79,19 @@ def input_names():
                     input_active_1 = False
                     input_active_2 = True
                 elif start_button.collidepoint(event.pos):
-                    if player_1_name and player_2_name:
+                    if player_1_name.strip() and player_2_name.strip():
                         game_started = True
 
             elif event.type == pygame.KEYDOWN:
                 if input_active_1:
                     if event.key == pygame.K_BACKSPACE:
                         player_1_name = player_1_name[:-1]
-                    else:
+                    elif len(player_1_name) < 20:  # Limit name length
                         player_1_name += event.unicode
                 elif input_active_2:
                     if event.key == pygame.K_BACKSPACE:
                         player_2_name = player_2_name[:-1]
-                    else:
+                    elif len(player_2_name) < 20:  # Limit name length
                         player_2_name += event.unicode
 
         pygame.display.flip()
