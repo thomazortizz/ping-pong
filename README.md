@@ -24,7 +24,7 @@ Antes de começar, certifique-se de ter os seguintes pré-requisitos:
 
 ## Instalação
 
-1. Clone este repositório para sua máquina local usando `git clone https://github.com/yourusername/ping-pong.git`.
+1. Clone este repositório para sua máquina local usando `git clone https://github.com/thomazortizz/ping-pong.git`.
 2. Instale a biblioteca Pygame usando `pip install pygame`.
 
 ## Como usar
